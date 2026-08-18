@@ -128,7 +128,7 @@ export const SCENES: StoryScene[] = [
     intro: [{ speaker: "Narrator", text: "The kingdom had become too bright to be a dream of ruins.", cinematic: true }],
     interactables: [
       { id: "festival", label: "Remember the festival", x: 490, y: 340, kind: "crystal", memory: "festival", lines: [{ speaker: "Narrator", text: "The flowers opened as she passed, like the world had been waiting for her." }] },
-      { id: "ken_heart", label: "Talk to Ken", x: 945, y: 330, kind: "heart", after: "final", lines: [
+      { id: "ken_heart", label: "Talk to Ken", x: 858, y: 470, kind: "heart", after: "final", lines: [
         { speaker: "Ken", text: "You walked through the bad memories, stupid memories, painful memories... and the ones I would live again." },
         { speaker: "Ken", text: "There is one thing I never showed you." },
         { speaker: "Narrator", text: "The castle doors opened. The whole world inhaled light.", cinematic: true },

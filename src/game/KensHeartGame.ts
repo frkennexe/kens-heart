@@ -563,10 +563,20 @@ export class KensHeartGame {
     this.ctx.lineTo(W, 440); this.ctx.lineTo(0, 440); this.ctx.closePath(); this.ctx.fill();
     this.ctx.fillStyle = rgba(mood.glow, 0.06);
     this.ctx.fillRect(0, 310, W, 100);
+    this.ctx.strokeStyle = rgba(mood.glow, 0.12);
+    this.ctx.lineWidth = 2;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 408);
+    this.ctx.quadraticCurveTo(330, 370, 650, 410);
+    this.ctx.quadraticCurveTo(970, 445, W, 385);
+    this.ctx.stroke();
   }
 
   private drawGround(mood: StoryScene["mood"]): void {
-    this.ctx.fillStyle = mood.floor;
+    const ground = this.ctx.createLinearGradient(0, 410, 0, H);
+    ground.addColorStop(0, mood.floor);
+    ground.addColorStop(1, rgba(mood.floor, 0.62));
+    this.ctx.fillStyle = ground;
     this.ctx.fillRect(0, 410, W, H - 410);
     this.ctx.strokeStyle = rgba(mood.accent, 0.28);
     this.ctx.lineWidth = 65;
@@ -574,6 +584,10 @@ export class KensHeartGame {
     this.ctx.beginPath();
     this.ctx.moveTo(-50, 560); this.ctx.bezierCurveTo(210, 490, 370, 610, 595, 520); this.ctx.bezierCurveTo(830, 430, 1010, 570, 1340, 470); this.ctx.stroke();
     this.ctx.strokeStyle = rgba("#e6d2af", 0.1); this.ctx.lineWidth = 4; this.ctx.stroke();
+    this.ctx.strokeStyle = rgba(mood.glow, 0.08); this.ctx.lineWidth = 1;
+    for (let y = 448; y < H; y += 50) {
+      this.ctx.beginPath(); this.ctx.moveTo(0, y); this.ctx.quadraticCurveTo(W * 0.45, y - 13, W, y + 7); this.ctx.stroke();
+    }
   }
 
   private drawSceneLandmarks(): void {
@@ -588,6 +602,8 @@ export class KensHeartGame {
     const c = this.ctx;
     c.fillStyle = "#1b1627"; c.fillRect(675, 220, 285, 270);
     c.fillStyle = "#3c2940"; c.beginPath(); c.moveTo(635, 230); c.lineTo(815, 100); c.lineTo(1000, 230); c.closePath(); c.fill();
+    c.strokeStyle = rgba("#ffc989", 0.2); c.lineWidth = 4; c.beginPath(); c.moveTo(640, 230); c.lineTo(815, 104); c.lineTo(995, 230); c.stroke();
+    c.fillStyle = rgba("#c68863", 0.18); [710, 765, 870, 925].forEach((x) => c.fillRect(x, 240, 8, 240));
     c.fillStyle = "#ffcf83";
     [720, 840, 915].forEach((x) => { c.fillRect(x, 290, 38, 55); c.fillStyle = rgba("#ffcf83", 0.18); c.beginPath(); c.arc(x + 19, 315, 42, 0, Math.PI * 2); c.fill(); c.fillStyle = "#ffcf83"; });
     c.fillStyle = "#291d31"; c.fillRect(790, 376, 52, 115);
@@ -628,10 +644,11 @@ export class KensHeartGame {
   private drawFestival(): void {
     const c = this.ctx;
     c.fillStyle = "#6c405f"; c.fillRect(880, 160, 245, 290); c.fillStyle = "#a85c81"; c.beginPath(); c.moveTo(845, 160); c.lineTo(1002, 35); c.lineTo(1160, 160); c.closePath(); c.fill();
+    c.strokeStyle = rgba("#ffd99c", 0.23); c.lineWidth = 4; c.beginPath(); c.moveTo(850, 160); c.lineTo(1002, 39); c.lineTo(1155, 160); c.stroke();
     c.fillStyle = "#ffecab"; c.fillRect(960, 270, 83, 180);
     c.fillStyle = rgba("#ffc3a1", 0.88); c.beginPath(); c.arc(810, 295, 96, 0, Math.PI * 2); c.fill(); c.fillStyle = "#5a8b58"; c.fillRect(798, 295, 22, 210);
     c.strokeStyle = "#ffd886"; c.lineWidth = 3; c.beginPath(); c.moveTo(72, 220); c.quadraticCurveTo(360, 150, 640, 210); c.quadraticCurveTo(810, 245, 1140, 180); c.stroke();
-    for (let i = 0; i < 10; i += 1) { c.fillStyle = i % 2 ? "#f0a2a5" : "#fee096"; c.fillRect(130 + i * 102, 190 + Math.sin(i) * 15, 17, 25); }
+    for (let i = 0; i < 10; i += 1) { const x = 130 + i * 102; const y = 190 + Math.sin(i) * 15; c.fillStyle = rgba(i % 2 ? "#f0a2a5" : "#fee096", 0.18); c.beginPath(); c.arc(x + 8, y + 12, 28, 0, Math.PI * 2); c.fill(); c.fillStyle = i % 2 ? "#f0a2a5" : "#fee096"; c.fillRect(x, y, 17, 25); }
     if (this.finalPhase) this.drawFireworks();
   }
 
@@ -664,6 +681,7 @@ export class KensHeartGame {
     if (item.kind === "npc" || item.kind === "heart") {
       c.fillStyle = rgba(glow, completed ? 0.22 : 0.45); c.beginPath(); c.arc(0, 0, 38, 0, Math.PI * 2); c.fill();
       if (["tavern", "lowest", "ken_heart"].includes(item.id)) {
+        c.fillStyle = "rgba(5, 8, 16, 0.28)"; c.beginPath(); c.ellipse(0, 22, 31, 8, 0, 0, Math.PI * 2); c.fill();
         this.drawKenSprite(98, 147, Math.sin(this.elapsed / 340 + item.x) * 0.35);
       } else {
         c.fillStyle = item.kind === "heart" ? "#ffb2ad" : "#5a3a66"; c.fillRect(-13, -18, 26, 43); c.fillStyle = "#f5c2a7"; c.beginPath(); c.arc(0, -29, 13, 0, Math.PI * 2); c.fill();
