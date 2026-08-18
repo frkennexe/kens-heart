@@ -10,10 +10,11 @@ export const ASSETS = {
   },
   images: {
     faySprite: "./assets/images/fay-pixel.png",
+    kenSprite: "./assets/images/ken-source.png",
   },
   placeholders: {
     fayPortrait: "./assets/images/fay-pixel.png",
-    kenPortrait: "procedural:ken",
+    kenPortrait: "./assets/images/ken-source.png",
     memoryCrystal: "procedural:crystal",
   },
 } as const;

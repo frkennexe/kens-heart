@@ -23,6 +23,8 @@ export class KensHeartGame {
   private readonly ctx: CanvasRenderingContext2D;
   private readonly audio = new AudioManager();
   private readonly faySprite = new Image();
+  private readonly kenSprite = new Image();
+  private kenSpriteCanvas?: HTMLCanvasElement;
   private save: GameSave = SaveManager.load() ?? blankSave();
   private mode: GameMode = "title";
   private scene: StoryScene = sceneById(1);
@@ -44,6 +46,8 @@ export class KensHeartGame {
 
   constructor(mount: HTMLElement) {
     this.faySprite.src = ASSETS.images.faySprite;
+    this.kenSprite.addEventListener("load", () => this.prepareKenSprite());
+    this.kenSprite.src = ASSETS.images.kenSprite;
     mount.innerHTML = `
       <section class="game-shell" aria-label="Ken's Heart">
         <canvas class="world" width="1280" height="720" aria-label="Playable fantasy world"></canvas>
@@ -161,6 +165,24 @@ export class KensHeartGame {
     this.canvas.height = Math.max(1, Math.floor(rect.height * density));
   }
 
+  private prepareKenSprite(): void {
+    if (!this.kenSprite.naturalWidth || !this.kenSprite.naturalHeight) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = this.kenSprite.naturalWidth;
+    canvas.height = this.kenSprite.naturalHeight;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    context.drawImage(this.kenSprite, 0, 0);
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+    for (let index = 0; index < pixels.data.length; index += 4) {
+      const red = pixels.data[index]; const green = pixels.data[index + 1]; const blue = pixels.data[index + 2];
+      const isFlatGrey = red >= 112 && red <= 148 && Math.abs(red - green) <= 4 && Math.abs(green - blue) <= 4;
+      if (isFlatGrey) pixels.data[index + 3] = 0;
+    }
+    context.putImageData(pixels, 0, 0);
+    this.kenSpriteCanvas = canvas;
+  }
+
   private menuAction(action: string): void {
     if (action === "new") this.startNewGame();
     if (action === "continue") this.continueGame();
@@ -203,7 +225,7 @@ export class KensHeartGame {
     this.closeLetter(false);
     this.ui.pause.classList.remove("show");
     this.ui.title.classList.add("show");
-    this.audio.pause();
+    this.audio.fadeOut();
     this.updateMenu();
   }
 
@@ -233,7 +255,7 @@ export class KensHeartGame {
     this.ui.realm.textContent = this.scene.name;
     this.ui.objective.textContent = this.scene.objective;
     this.audio.setVolume(this.save.settings.musicVolume);
-    void this.audio.play(this.scene.mood.audio, true);
+    void this.audio.play(this.scene.mood.audio);
     this.saveNow();
     if (showIntro) window.setTimeout(() => this.openDialogue(this.scene.intro), 650);
   }
@@ -285,13 +307,13 @@ export class KensHeartGame {
     if (interactable.after === "bridge") {
       this.ui.objective.innerHTML = "<s>Stay with Fay.</s>";
       this.shake = 1.7;
-      this.audio.pause();
+      this.audio.fadeOut();
       window.setTimeout(() => this.changeScene(3), 1500);
     } else if (interactable.after === "lowest") {
       this.scene.objective = "Follow the distant chime.";
       this.ui.objective.textContent = this.scene.objective;
-      this.audio.pause();
-      window.setTimeout(() => this.audio.resume(), 2200);
+      this.audio.fadeOut(650);
+      window.setTimeout(() => void this.audio.play(this.scene.mood.audio), 2200);
     } else if (interactable.after === "note") {
       this.openLetter("The Archive", "An old note", OLD_NOTE, false);
     } else if (interactable.after === "nextScene") {
@@ -307,7 +329,6 @@ export class KensHeartGame {
   }
 
   private changeScene(nextId: number): void {
-    this.audio.resume();
     this.showToast(`Chapter ${nextId}: ${sceneById(nextId).name}`);
     this.setScene(nextId, true);
   }
@@ -619,7 +640,12 @@ export class KensHeartGame {
     const completed = this.save.completed.includes(item.id); const c = this.ctx; const glow = item.kind === "gate" ? this.scene.mood.accent : this.scene.mood.glow;
     c.save(); c.translate(item.x, item.y);
     if (item.kind === "npc" || item.kind === "heart") {
-      c.fillStyle = rgba(glow, completed ? 0.3 : 0.55); c.beginPath(); c.arc(0, 0, 38, 0, Math.PI * 2); c.fill(); c.fillStyle = item.kind === "heart" ? "#ffb2ad" : "#5a3a66"; c.fillRect(-13, -18, 26, 43); c.fillStyle = "#f5c2a7"; c.beginPath(); c.arc(0, -29, 13, 0, Math.PI * 2); c.fill();
+      c.fillStyle = rgba(glow, completed ? 0.22 : 0.45); c.beginPath(); c.arc(0, 0, 38, 0, Math.PI * 2); c.fill();
+      if (["tavern", "lowest", "ken_heart"].includes(item.id)) {
+        this.drawKenSprite(72, 108, Math.sin(this.elapsed / 340 + item.x) * 0.35);
+      } else {
+        c.fillStyle = item.kind === "heart" ? "#ffb2ad" : "#5a3a66"; c.fillRect(-13, -18, 26, 43); c.fillStyle = "#f5c2a7"; c.beginPath(); c.arc(0, -29, 13, 0, Math.PI * 2); c.fill();
+      }
     } else if (item.kind === "gate") {
       c.strokeStyle = rgba(glow, completed ? 0.35 : 0.86); c.lineWidth = 8; c.beginPath(); c.arc(0, 0, 38, Math.PI, 0); c.stroke(); c.fillStyle = rgba(glow, 0.2); c.fillRect(-39, -1, 78, 55);
     } else if (item.kind === "note") {
@@ -632,23 +658,41 @@ export class KensHeartGame {
 
   private drawCompanion(): void {
     const c = this.ctx; const x = clamp(this.player.x - 52, 70, 1210); const y = clamp(this.player.y + 22, 160, 630);
-    c.save(); c.translate(x, y); c.fillStyle = rgba(this.scene.mood.glow, 0.2); c.beginPath(); c.arc(0, 0, 35, 0, Math.PI * 2); c.fill(); c.fillStyle = "#3d2c50"; c.fillRect(-11, -18, 22, 40); c.fillStyle = "#e6ba9e"; c.beginPath(); c.arc(0, -27, 12, 0, Math.PI * 2); c.fill(); c.restore();
+    const walking = this.keys.size > 0 || Boolean(this.clickTarget);
+    const stride = walking ? Math.sin(this.player.bob) : Math.sin(this.elapsed / 430) * 0.15;
+    c.save(); c.translate(x, y); c.fillStyle = rgba(this.scene.mood.glow, 0.2); c.beginPath(); c.arc(0, 0, 35, 0, Math.PI * 2); c.fill(); this.drawKenSprite(70, 105, stride); c.restore();
   }
 
   private drawPlayer(): void {
-    const c = this.ctx; const bob = Math.sin(this.player.bob) * (this.keys.size ? 2 : 0);
+    const c = this.ctx; const walking = this.keys.size > 0 || Boolean(this.clickTarget); const stride = walking ? Math.sin(this.player.bob) : 0; const bob = stride * 2.2;
     c.save();
     c.translate(this.player.x, this.player.y + bob);
     c.fillStyle = rgba("#0d1020", 0.34);
     c.beginPath(); c.ellipse(0, 29, 31, 9, 0, 0, Math.PI * 2); c.fill();
     if (this.faySprite.complete && this.faySprite.naturalWidth > 0) {
       c.imageSmoothingEnabled = false;
-      c.drawImage(this.faySprite, -47, -113, 94, 141);
+      c.rotate(stride * 0.018);
+      c.drawImage(this.faySprite, -47 + stride * 1.5, -113, 94, 141 - Math.abs(stride) * 2);
     } else {
       c.fillStyle = "#d596a2"; c.beginPath(); c.moveTo(-18, 24); c.lineTo(0, -10); c.lineTo(18, 24); c.closePath(); c.fill();
       c.fillStyle = "#f3c3a6"; c.beginPath(); c.arc(0, -16, 14, 0, Math.PI * 2); c.fill();
       c.fillStyle = "#4c294c"; c.beginPath(); c.arc(0, -21, 15, Math.PI, Math.PI * 2); c.fill();
     }
+    c.restore();
+  }
+
+  private drawKenSprite(width: number, height: number, stride = 0): void {
+    const c = this.ctx;
+    const sprite = this.kenSpriteCanvas ?? this.kenSprite;
+    if (sprite instanceof HTMLImageElement && (!sprite.complete || sprite.naturalWidth === 0)) {
+      c.fillStyle = "#3d3a3a"; c.fillRect(-11, -18, 22, 40); c.fillStyle = "#e6ba9e"; c.beginPath(); c.arc(0, -27, 12, 0, Math.PI * 2); c.fill();
+      return;
+    }
+    c.save();
+    c.imageSmoothingEnabled = false;
+    c.translate(stride * 1.2, stride * 2);
+    c.rotate(stride * 0.012);
+    c.drawImage(sprite, -width / 2, -height + 18, width, height - Math.abs(stride) * 2);
     c.restore();
   }
 
