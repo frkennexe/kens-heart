@@ -49,10 +49,10 @@ export const SCENES: StoryScene[] = [
     ],
     interactables: [
       { id: "tavern", label: "Enter the Tavern", x: 790, y: 300, kind: "npc", memory: "tavern_first_hate", lines: [
-        { speaker: "Ken", text: "Why does this girl hate me?" },
-        { speaker: "Fay", text: "Maybe because you're annoying?" },
-        { speaker: "Ken", text: "I literally just met you." },
-        { speaker: "Fay", text: "Exactly." },
+        { speaker: "Ken", text: "hi fayyyy how u doinn.." },
+        { speaker: "Fay", text: "m good" },
+        { speaker: "Ken", text: "being dry again?" },
+        { speaker: "Fay", text: "im js like that" },
         { speaker: "Narrator", text: "??? Bond formed.", cinematic: true },
       ] },
       { id: "crossroads_exit", label: "Follow the gathering storm", x: 1110, y: 475, kind: "gate", after: "nextScene", lines: [
@@ -113,7 +113,7 @@ export const SCENES: StoryScene[] = [
     interactables: [
       { id: "light_one", label: "Light the first lantern", x: 390, y: 430, kind: "light", memory: "first_light", after: "restore", lines: [{ speaker: "Fay", text: "We are talking again." }, { speaker: "Ken", text: "Yeah. Weird, right?" }] },
       { id: "light_two", label: "Light the second lantern", x: 630, y: 280, kind: "light", after: "restore", lines: [{ speaker: "Ken", text: "When did we stop hating each other?" }, { speaker: "Fay", text: "No idea." }, { speaker: "Ken", text: "Damn. That's unfortunate." }] },
-      { id: "lake", label: "Wait at the lake", x: 810, y: 430, kind: "heart", after: "restore", lines: [{ speaker: "Ken", text: "...I think I like you." }, { speaker: "Fay", text: "About time." }] },
+      { id: "lake", label: "Wait at the lake", x: 810, y: 430, kind: "heart", after: "restore", lines: [{ speaker: "Ken", text: "...I think I like you." }, { speaker: "Fay", text: "YAYAYYAYAYAYYAY." }] },
       { id: "archive", label: "Read the old note", x: 1050, y: 260, kind: "note", memory: "old_note", after: "note", lines: [{ speaker: "Narrator", text: "An old note. Written before either of them knew where this story was going.", cinematic: true }] },
       { id: "archive_exit", label: "Leave the Archive", x: 1130, y: 510, kind: "gate", after: "nextScene", lines: [{ speaker: "Narrator", text: "He kept it. All this time.", cinematic: true }] },
     ],
