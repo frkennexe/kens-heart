@@ -50,7 +50,7 @@ export class KensHeartGame {
     this.kenSprite.src = ASSETS.images.kenSprite;
     mount.innerHTML = `
       <section class="game-shell" aria-label="Ken's Heart">
-        <canvas class="world" width="1280" height="720" aria-label="Playable fantasy world"></canvas>
+        <canvas class="world" width="1280" height="720" tabindex="0" aria-label="Playable fantasy world"></canvas>
         <div class="grain"></div><div class="letterbox top"></div><div class="letterbox bottom"></div>
         <header class="hud" aria-live="polite">
           <div class="title-pill"><span class="pulse-dot"></span><span id="realmName">THE CROSSROADS</span></div>
@@ -136,6 +136,7 @@ export class KensHeartGame {
     });
     this.$("#pauseButton").addEventListener("click", () => this.togglePause());
     this.canvas.addEventListener("pointerdown", (event) => {
+      this.focusGame();
       if (this.mode !== "playing" || this.dialog || this.ui.letter.classList.contains("show") || this.ui.final.classList.contains("show")) return;
       const rect = this.canvas.getBoundingClientRect();
       this.clickTarget = {
@@ -167,6 +168,10 @@ export class KensHeartGame {
     const density = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = Math.max(1, Math.floor(rect.width * density));
     this.canvas.height = Math.max(1, Math.floor(rect.height * density));
+  }
+
+  private focusGame(): void {
+    this.canvas.focus({ preventScroll: true });
   }
 
   private prepareKenSprite(): void {
@@ -207,6 +212,7 @@ export class KensHeartGame {
     this.mode = "playing";
     this.ui.title.classList.remove("show");
     this.ui.pause.classList.remove("show");
+    this.focusGame();
     await this.audio.unlock();
     this.setScene(1, true);
   }
@@ -218,6 +224,7 @@ export class KensHeartGame {
     this.started = true;
     this.mode = "playing";
     this.ui.title.classList.remove("show");
+    this.focusGame();
     await this.audio.unlock();
     this.setScene(this.save.sceneId, false);
     this.player = { ...this.save.position, facing: 1, bob: 0 };
@@ -250,7 +257,8 @@ export class KensHeartGame {
     this.mode = pause ? "paused" : "playing";
     this.ui.pause.classList.toggle("show", pause);
     this.ui.pauseObjective.textContent = this.scene.objective || "No objective. Just keep walking.";
-    if (pause) this.audio.pause(); else this.audio.resume();
+    if (pause) this.audio.pause();
+    else { this.audio.resume(); this.focusGame(); }
   }
 
   private setScene(id: number, showIntro: boolean): void {
@@ -404,6 +412,7 @@ export class KensHeartGame {
       this.ui.objective.textContent = this.scene.objective;
       this.saveNow();
     }
+    if (this.mode === "playing") this.focusGame();
   }
 
   private openMemories(): void {
@@ -444,6 +453,7 @@ export class KensHeartGame {
 
   private closePanel(): void {
     this.ui.panel.classList.remove("show");
+    if (this.mode === "playing") this.focusGame();
   }
 
   private updateMenu(): void {
