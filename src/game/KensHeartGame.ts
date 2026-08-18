@@ -664,7 +664,7 @@ export class KensHeartGame {
     if (item.kind === "npc" || item.kind === "heart") {
       c.fillStyle = rgba(glow, completed ? 0.22 : 0.45); c.beginPath(); c.arc(0, 0, 38, 0, Math.PI * 2); c.fill();
       if (["tavern", "lowest", "ken_heart"].includes(item.id)) {
-        this.drawKenSprite(72, 108, Math.sin(this.elapsed / 340 + item.x) * 0.35);
+        this.drawKenSprite(84, 126, Math.sin(this.elapsed / 340 + item.x) * 0.35);
       } else {
         c.fillStyle = item.kind === "heart" ? "#ffb2ad" : "#5a3a66"; c.fillRect(-13, -18, 26, 43); c.fillStyle = "#f5c2a7"; c.beginPath(); c.arc(0, -29, 13, 0, Math.PI * 2); c.fill();
       }
@@ -682,7 +682,7 @@ export class KensHeartGame {
     const c = this.ctx; const x = clamp(this.player.x - 52, 70, 1210); const y = clamp(this.player.y + 22, 160, 630);
     const walking = this.keys.size > 0 || Boolean(this.clickTarget);
     const stride = walking ? Math.sin(this.player.bob) : Math.sin(this.elapsed / 430) * 0.15;
-    c.save(); c.translate(x, y); c.fillStyle = rgba(this.scene.mood.glow, 0.2); c.beginPath(); c.arc(0, 0, 35, 0, Math.PI * 2); c.fill(); this.drawKenSprite(70, 105, stride); c.restore();
+    c.save(); c.translate(x, y); c.fillStyle = rgba(this.scene.mood.glow, 0.2); c.beginPath(); c.arc(0, 0, 35, 0, Math.PI * 2); c.fill(); this.drawKenSprite(82, 123, stride); c.restore();
   }
 
   private drawPlayer(): void {
@@ -694,7 +694,7 @@ export class KensHeartGame {
     if (this.faySprite.complete && this.faySprite.naturalWidth > 0) {
       c.imageSmoothingEnabled = false;
       c.rotate(stride * 0.018);
-      c.drawImage(this.faySprite, -47 + stride * 1.5, -113, 94, 141 - Math.abs(stride) * 2);
+      c.drawImage(this.faySprite, -38 + stride * 1.5, -91, 76, 114 - Math.abs(stride) * 2);
     } else {
       c.fillStyle = "#d596a2"; c.beginPath(); c.moveTo(-18, 24); c.lineTo(0, -10); c.lineTo(18, 24); c.closePath(); c.fill();
       c.fillStyle = "#f3c3a6"; c.beginPath(); c.arc(0, -16, 14, 0, Math.PI * 2); c.fill();
