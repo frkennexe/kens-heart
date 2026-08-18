@@ -59,8 +59,7 @@ export class KensHeartGame {
         </section>
         <section id="titleScreen" class="screen title-screen">
           <div class="title-stars">✦　·　✧　·　✦</div>
-          <p class="eyebrow">A fantasy birthday RPG</p><h1>KEN'S <em>HEART</em></h1><p class="for-fay">for Fay</p>
-          <p class="title-intro">A quiet kingdom has forgotten<span class="mobile-break"><br></span> what warmth feels like.<br>Walk through its memories.<span class="mobile-break"><br></span> Bring its light home.</p>
+          <h1>KEN'S <em>HEART</em></h1>
           <div class="menu-actions">
             <button class="primary" data-action="new">Begin</button>
             <button data-action="continue" id="continueButton">Continue</button>
@@ -68,7 +67,6 @@ export class KensHeartGame {
             <button data-action="settings">Settings</button>
             <button data-action="credits">Credits</button>
           </div>
-          <p class="controls-hint">Move with <kbd>WASD</kbd> / <kbd>arrow keys</kbd> · interact with <kbd>E</kbd> / <kbd>Enter</kbd></p>
         </section>
         <section id="pauseScreen" class="screen pause-screen" aria-modal="true" role="dialog">
           <p class="eyebrow">A little breathing room</p><h2>PAUSED</h2><p id="pauseObjective" class="pause-objective"></p>
