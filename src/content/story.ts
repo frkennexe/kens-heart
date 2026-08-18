@@ -48,7 +48,7 @@ export const SCENES: StoryScene[] = [
       { speaker: "Narrator", text: "And the girl who accidentally found her way inside.", cinematic: true },
     ],
     interactables: [
-      { id: "tavern", label: "Enter the Tavern", x: 790, y: 300, kind: "npc", memory: "tavern_first_hate", lines: [
+      { id: "tavern", label: "Enter the Tavern", x: 620, y: 460, kind: "npc", memory: "tavern_first_hate", lines: [
         { speaker: "Ken", text: "hi fayyyy how u doinn.." },
         { speaker: "Fay", text: "m good" },
         { speaker: "Ken", text: "being dry again?" },
