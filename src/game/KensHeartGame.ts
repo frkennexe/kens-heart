@@ -61,7 +61,10 @@ export class KensHeartGame {
         <div id="prompt" class="prompt" aria-live="polite"></div>
         <div id="toast" class="toast" aria-live="polite"></div>
         <section id="dialogue" class="dialogue" aria-live="polite">
-          <div id="portrait" class="portrait fay"><span>F</span></div>
+          <div id="portrait" class="portrait fay">
+            <img id="portraitImage" class="portrait-image" alt="Fay" />
+            <span id="portraitInitial" class="portrait-initial" hidden>F</span>
+          </div>
           <div class="dialogue-copy"><p id="speaker" class="speaker"></p><p id="dialogueText" class="dialogue-text"></p><span class="advance">E / Enter to continue <i>◆</i></span></div>
         </section>
         <section id="titleScreen" class="screen title-screen">
@@ -96,6 +99,7 @@ export class KensHeartGame {
       letter: this.$("#letter"), letterKicker: this.$("#letterKicker"), letterTitle: this.$("#letterTitle"),
       letterBody: this.$("#letterBody"), final: this.$("#finalReveal"), saveMark: this.$("#saveMark"),
       speaker: this.$("#speaker"), dialogueText: this.$("#dialogueText"), portrait: this.$("#portrait"),
+      portraitImage: this.$("#portraitImage"), portraitInitial: this.$("#portraitInitial"),
       pauseObjective: this.$("#pauseObjective"), continue: this.$("#continueButton"),
     };
     this.bindEvents();
@@ -181,6 +185,8 @@ export class KensHeartGame {
     }
     context.putImageData(pixels, 0, 0);
     this.kenSpriteCanvas = canvas;
+    const portraitImage = this.ui?.portraitImage as HTMLImageElement | undefined;
+    if (portraitImage && this.dialog?.lines[this.dialog.index]?.speaker === "Ken") portraitImage.src = canvas.toDataURL();
   }
 
   private menuAction(action: string): void {
@@ -347,7 +353,23 @@ export class KensHeartGame {
     this.ui.dialogueText.textContent = line.text;
     this.ui.dialogue.classList.toggle("cinematic", Boolean(line.cinematic));
     this.ui.portrait.className = `portrait ${(line.speaker ?? "Narrator").toLowerCase()}`;
-    this.ui.portrait.textContent = line.speaker === "Ken" ? "K" : line.speaker === "Fay" ? "F" : line.speaker === "Echo" ? "?" : "✦";
+    const portraitImage = this.ui.portraitImage as HTMLImageElement;
+    const portraitInitial = this.ui.portraitInitial;
+    const speaker = line.speaker ?? "Narrator";
+    const characterSprite = speaker === "Fay" || speaker === "Ken";
+    portraitImage.hidden = !characterSprite;
+    portraitInitial.hidden = characterSprite;
+    if (speaker === "Fay") {
+      portraitImage.src = ASSETS.images.faySprite;
+      portraitImage.alt = "Fay";
+    } else if (speaker === "Ken") {
+      portraitImage.src = this.kenSpriteCanvas?.toDataURL() ?? ASSETS.images.kenSprite;
+      portraitImage.alt = "Ken";
+    } else {
+      portraitImage.removeAttribute("src");
+      portraitImage.alt = "";
+      portraitInitial.textContent = speaker === "Echo" ? "?" : "✦";
+    }
   }
 
   private advanceDialogue(): void {
