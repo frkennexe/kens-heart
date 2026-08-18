@@ -287,7 +287,7 @@ export class KensHeartGame {
   }
 
   private interact(interactable: Interactable): void {
-    if (this.save.completed.includes(interactable.id) && interactable.kind !== "gate") {
+    if (this.save.completed.includes(interactable.id) && interactable.kind !== "gate" && interactable.id !== "tavern") {
       this.showToast("This memory is safely held in the Archive.");
       return;
     }
@@ -501,7 +501,7 @@ export class KensHeartGame {
         this.player.facing = x || this.player.facing;
         this.player.bob += delta * 11;
       }
-      this.nearest = this.scene.interactables.find((interactable) => distance(this.player, interactable) < 87 && (!this.save.completed.includes(interactable.id) || interactable.kind === "gate" || interactable.id === "ken_heart"));
+      this.nearest = this.scene.interactables.find((interactable) => distance(this.player, interactable) < 118 && (!this.save.completed.includes(interactable.id) || interactable.kind === "gate" || interactable.id === "ken_heart" || interactable.id === "tavern"));
       this.ui.prompt.classList.toggle("show", Boolean(this.nearest));
       this.ui.prompt.textContent = this.nearest ? `E  ${this.nearest.label}` : "";
     } else {
