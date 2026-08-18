@@ -8,8 +8,11 @@ export const ASSETS = {
     mysteries: "./assets/audio/mysteries-undertale.mp3",
     brightMoment: "./assets/audio/bright-moment-fading-memory.mp3",
   },
+  images: {
+    faySprite: "./assets/images/fay-pixel.png",
+  },
   placeholders: {
-    fayPortrait: "procedural:fay",
+    fayPortrait: "./assets/images/fay-pixel.png",
     kenPortrait: "procedural:ken",
     memoryCrystal: "procedural:crystal",
   },

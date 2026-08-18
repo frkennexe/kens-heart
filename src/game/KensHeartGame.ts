@@ -1,6 +1,7 @@
 import { BIRTHDAY_LETTER, OLD_NOTE } from "../content/letters";
 import { MEMORIES } from "../content/memories";
 import { SCENES, sceneById, type Interactable, type Line, type StoryScene } from "../content/story";
+import { ASSETS } from "../content/assets";
 import { AudioManager } from "./AudioManager";
 import { blankSave, SaveManager, type GameSave, type Settings } from "./SaveManager";
 
@@ -21,6 +22,7 @@ export class KensHeartGame {
   private readonly canvas: HTMLCanvasElement;
   private readonly ctx: CanvasRenderingContext2D;
   private readonly audio = new AudioManager();
+  private readonly faySprite = new Image();
   private save: GameSave = SaveManager.load() ?? blankSave();
   private mode: GameMode = "title";
   private scene: StoryScene = sceneById(1);
@@ -41,6 +43,7 @@ export class KensHeartGame {
   private readonly ui: Record<string, HTMLElement>;
 
   constructor(mount: HTMLElement) {
+    this.faySprite.src = ASSETS.images.faySprite;
     mount.innerHTML = `
       <section class="game-shell" aria-label="Ken's Heart">
         <canvas class="world" width="1280" height="720" aria-label="Playable fantasy world"></canvas>
@@ -634,7 +637,19 @@ export class KensHeartGame {
 
   private drawPlayer(): void {
     const c = this.ctx; const bob = Math.sin(this.player.bob) * (this.keys.size ? 2 : 0);
-    c.save(); c.translate(this.player.x, this.player.y + bob); c.fillStyle = rgba("#0d1020", 0.32); c.beginPath(); c.ellipse(0, 26, 25, 8, 0, 0, Math.PI * 2); c.fill(); c.fillStyle = "#d596a2"; c.beginPath(); c.moveTo(-18, 24); c.lineTo(0, -10); c.lineTo(18, 24); c.closePath(); c.fill(); c.fillStyle = "#f3c3a6"; c.beginPath(); c.arc(0, -16, 14, 0, Math.PI * 2); c.fill(); c.fillStyle = "#4c294c"; c.beginPath(); c.arc(0, -21, 15, Math.PI, Math.PI * 2); c.fill(); c.strokeStyle = "#fff0b4"; c.lineWidth = 2; c.beginPath(); c.arc(0, -2, 28, 0, Math.PI * 2); c.stroke(); c.restore();
+    c.save();
+    c.translate(this.player.x, this.player.y + bob);
+    c.fillStyle = rgba("#0d1020", 0.34);
+    c.beginPath(); c.ellipse(0, 29, 31, 9, 0, 0, Math.PI * 2); c.fill();
+    if (this.faySprite.complete && this.faySprite.naturalWidth > 0) {
+      c.imageSmoothingEnabled = false;
+      c.drawImage(this.faySprite, -47, -113, 94, 141);
+    } else {
+      c.fillStyle = "#d596a2"; c.beginPath(); c.moveTo(-18, 24); c.lineTo(0, -10); c.lineTo(18, 24); c.closePath(); c.fill();
+      c.fillStyle = "#f3c3a6"; c.beginPath(); c.arc(0, -16, 14, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "#4c294c"; c.beginPath(); c.arc(0, -21, 15, Math.PI, Math.PI * 2); c.fill();
+    }
+    c.restore();
   }
 
   private drawVignette(fog: number): void {
