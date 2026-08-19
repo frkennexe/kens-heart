@@ -97,7 +97,7 @@ export const SCENES: StoryScene[] = [
       { id: "lowest", label: "Sit beside Ken", x: 805, y: 440, kind: "npc", after: "lowest", lines: [
         { speaker: "Fay", text: "What am I supposed to do?" },
         { speaker: "Ken", text: "Nothing." },
-        { speaker: "Ken", text: "This part already happened." },
+        { speaker: "Ken", text: "Im not that ken anymore u met." },
       ] },
       { id: "chime", label: "Follow the distant chime", x: 1120, y: 250, kind: "light", after: "nextScene", lines: [{ speaker: "Narrator", text: "A tiny light insisted on existing.", cinematic: true }] },
     ],
