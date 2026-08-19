@@ -24,6 +24,9 @@ export class KensHeartGame {
   private readonly audio = new AudioManager();
   private readonly faySprite = new Image();
   private readonly kenSprite = new Image();
+  private readonly tavernHouse = new Image();
+  private readonly archiveCottage = new Image();
+  private readonly heartCastle = new Image();
   private kenSpriteCanvas?: HTMLCanvasElement;
   private save: GameSave = SaveManager.load() ?? blankSave();
   private mode: GameMode = "title";
@@ -48,6 +51,9 @@ export class KensHeartGame {
     this.faySprite.src = ASSETS.images.faySprite;
     this.kenSprite.addEventListener("load", () => this.prepareKenSprite());
     this.kenSprite.src = ASSETS.images.kenSprite;
+    this.tavernHouse.src = ASSETS.images.tavernHouse;
+    this.archiveCottage.src = ASSETS.images.archiveCottage;
+    this.heartCastle.src = ASSETS.images.heartCastle;
     mount.innerHTML = `
       <section class="game-shell" aria-label="Ken's Heart">
         <canvas class="world" width="1280" height="720" tabindex="0" aria-label="Playable fantasy world"></canvas>
@@ -610,6 +616,10 @@ export class KensHeartGame {
 
   private drawTavern(): void {
     const c = this.ctx;
+    if (this.tavernHouse.complete && this.tavernHouse.naturalWidth > 0) {
+      c.save(); c.imageSmoothingEnabled = false; c.drawImage(this.tavernHouse, 630, 135, 390, 356); c.restore();
+      return;
+    }
     c.fillStyle = "#1b1627"; c.fillRect(675, 220, 285, 270);
     c.fillStyle = "#3c2940"; c.beginPath(); c.moveTo(635, 230); c.lineTo(815, 100); c.lineTo(1000, 230); c.closePath(); c.fill();
     c.strokeStyle = rgba("#ffc989", 0.2); c.lineWidth = 4; c.beginPath(); c.moveTo(640, 230); c.lineTo(815, 104); c.lineTo(995, 230); c.stroke();
@@ -647,18 +657,27 @@ export class KensHeartGame {
     c.fillStyle = rgba("#79bf72", 0.18 + health * 0.22);
     for (let i = 0; i < 22; i += 1) { const x = (i * 97 + 25) % W; const y = 430 + ((i * 61) % 210); c.beginPath(); c.arc(x, y, 8 + health * 12, 0, Math.PI * 2); c.fill(); }
     c.fillStyle = rgba("#3e73a0", 0.62); c.beginPath(); c.ellipse(770, 480, 140, 56, 0, 0, Math.PI * 2); c.fill();
+    if (this.archiveCottage.complete && this.archiveCottage.naturalWidth > 0) {
+      c.save(); c.imageSmoothingEnabled = false; c.drawImage(this.archiveCottage, 930, 178, 280, 232); c.restore();
+      return;
+    }
     c.fillStyle = "#28334b"; c.fillRect(970, 185, 200, 290); c.fillStyle = "#6c5b7e"; c.beginPath(); c.moveTo(940, 190); c.lineTo(1070, 90); c.lineTo(1200, 190); c.closePath(); c.fill();
     c.fillStyle = rgba("#ffeab0", 0.7); [1015, 1090, 1140].forEach((x) => c.fillRect(x, 255, 25, 145));
   }
 
   private drawFestival(): void {
     const c = this.ctx;
+    c.strokeStyle = "#ffd886"; c.lineWidth = 3; c.beginPath(); c.moveTo(72, 220); c.quadraticCurveTo(360, 150, 640, 210); c.quadraticCurveTo(810, 245, 1140, 180); c.stroke();
+    for (let i = 0; i < 10; i += 1) { const x = 130 + i * 102; const y = 190 + Math.sin(i) * 15; c.fillStyle = rgba(i % 2 ? "#f0a2a5" : "#fee096", 0.18); c.beginPath(); c.arc(x + 8, y + 12, 28, 0, Math.PI * 2); c.fill(); c.fillStyle = i % 2 ? "#f0a2a5" : "#fee096"; c.fillRect(x, y, 17, 25); }
+    if (this.heartCastle.complete && this.heartCastle.naturalWidth > 0) {
+      c.save(); c.imageSmoothingEnabled = false; c.drawImage(this.heartCastle, 615, 76, 600, 439); c.restore();
+      if (this.finalPhase) this.drawFireworks();
+      return;
+    }
     c.fillStyle = "#6c405f"; c.fillRect(880, 160, 245, 290); c.fillStyle = "#a85c81"; c.beginPath(); c.moveTo(845, 160); c.lineTo(1002, 35); c.lineTo(1160, 160); c.closePath(); c.fill();
     c.strokeStyle = rgba("#ffd99c", 0.23); c.lineWidth = 4; c.beginPath(); c.moveTo(850, 160); c.lineTo(1002, 39); c.lineTo(1155, 160); c.stroke();
     c.fillStyle = "#ffecab"; c.fillRect(960, 270, 83, 180);
     c.fillStyle = rgba("#ffc3a1", 0.88); c.beginPath(); c.arc(810, 295, 96, 0, Math.PI * 2); c.fill(); c.fillStyle = "#5a8b58"; c.fillRect(798, 295, 22, 210);
-    c.strokeStyle = "#ffd886"; c.lineWidth = 3; c.beginPath(); c.moveTo(72, 220); c.quadraticCurveTo(360, 150, 640, 210); c.quadraticCurveTo(810, 245, 1140, 180); c.stroke();
-    for (let i = 0; i < 10; i += 1) { const x = 130 + i * 102; const y = 190 + Math.sin(i) * 15; c.fillStyle = rgba(i % 2 ? "#f0a2a5" : "#fee096", 0.18); c.beginPath(); c.arc(x + 8, y + 12, 28, 0, Math.PI * 2); c.fill(); c.fillStyle = i % 2 ? "#f0a2a5" : "#fee096"; c.fillRect(x, y, 17, 25); }
     if (this.finalPhase) this.drawFireworks();
   }
 
@@ -688,6 +707,7 @@ export class KensHeartGame {
   private drawInteractable(item: Interactable): void {
     const completed = this.save.completed.includes(item.id); const c = this.ctx; const glow = item.kind === "gate" ? this.scene.mood.accent : this.scene.mood.glow;
     c.save(); c.translate(item.x, item.y);
+    this.drawInteractionGlow(item, completed);
     if (item.kind === "npc" || item.kind === "heart") {
       c.fillStyle = rgba(glow, completed ? 0.22 : 0.45); c.beginPath(); c.arc(0, 0, 38, 0, Math.PI * 2); c.fill();
       if (["tavern", "lowest", "ken_heart"].includes(item.id)) {
@@ -703,6 +723,19 @@ export class KensHeartGame {
     } else {
       c.fillStyle = rgba(glow, completed ? 0.25 : 0.7); c.beginPath(); c.arc(0, 0, 42 + Math.sin(this.elapsed / 230 + item.x) * 3, 0, Math.PI * 2); c.fill(); c.fillStyle = glow; c.beginPath(); c.moveTo(0, -30); c.lineTo(16, 0); c.lineTo(0, 31); c.lineTo(-16, 0); c.closePath(); c.fill();
     }
+    c.restore();
+  }
+
+  private drawInteractionGlow(item: Interactable, completed: boolean): void {
+    const available = !completed || item.kind === "gate" || item.id === "tavern" || item.id === "ken_heart";
+    if (!available) return;
+    const c = this.ctx; const pulse = 0.58 + Math.sin(this.elapsed / 210 + item.x * 0.01) * 0.32;
+    const y = item.kind === "gate" ? -76 : -96;
+    c.save(); c.globalAlpha = pulse;
+    c.fillStyle = "rgba(28, 161, 255, 0.2)"; c.beginPath(); c.arc(0, y, 28 + pulse * 10, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#1478d4"; c.fillRect(-7, y - 25, 14, 50); c.fillRect(-25, y - 7, 50, 14); c.fillRect(-15, y - 15, 30, 30);
+    c.fillStyle = "#6beeff"; c.fillRect(-5, y - 18, 10, 36); c.fillRect(-18, y - 5, 36, 10); c.fillStyle = "#e4ffff"; c.fillRect(-5, y - 5, 10, 10);
+    c.fillStyle = "rgba(12, 118, 207, 0.88)"; c.fillRect(-19, y + 29, 38, 5); c.fillRect(-12, y + 24, 24, 5);
     c.restore();
   }
 
