@@ -407,6 +407,7 @@ export class KensHeartGame {
     const portraitImage = this.ui.portraitImage as HTMLImageElement;
     const portraitInitial = this.ui.portraitInitial;
     const speaker = line.speaker ?? "Narrator";
+    this.ui.dialogue.classList.toggle("narrator-line", speaker === "Narrator" && Boolean(line.cinematic));
     const characterSprite = speaker === "Fay" || speaker === "Ken" || speaker === "Narrator";
     portraitImage.hidden = !characterSprite;
     portraitInitial.hidden = characterSprite;
@@ -435,7 +436,7 @@ export class KensHeartGame {
     }
     const resolve = this.dialog.resolve;
     this.dialog = undefined;
-    this.ui.dialogue.classList.remove("show", "cinematic");
+    this.ui.dialogue.classList.remove("show", "cinematic", "narrator-line");
     resolve?.();
   }
 
