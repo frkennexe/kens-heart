@@ -558,6 +558,7 @@ export class KensHeartGame {
     this.scene.interactables.forEach((interactable) => this.drawInteractable(interactable));
     if (this.scene.id === 4 && this.restored > 0) this.drawCompanion();
     this.drawPlayer();
+    this.drawGuideArrow();
     this.drawVignette(mood.fog);
   }
 
@@ -762,6 +763,30 @@ export class KensHeartGame {
       c.fillStyle = "#4c294c"; c.beginPath(); c.arc(0, -21, 15, Math.PI, Math.PI * 2); c.fill();
     }
     c.restore();
+  }
+
+  private drawGuideArrow(): void {
+    if (this.mode !== "playing" || this.dialog) return;
+    const target = this.getGuideTarget();
+    if (!target) return;
+    const c = this.ctx;
+    const angle = Math.atan2(target.y - this.player.y, target.x - this.player.x) + Math.PI / 2;
+    const pulse = 0.72 + Math.sin(this.elapsed / 190) * 0.28;
+    const bob = Math.sin(this.elapsed / 240) * 4;
+    c.save();
+    c.translate(this.player.x, this.player.y - 94 + bob);
+    c.rotate(angle);
+    c.globalAlpha = pulse;
+    c.fillStyle = "rgba(24, 117, 214, 0.24)"; c.beginPath(); c.arc(0, 0, 24, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#167bd7"; c.beginPath(); c.moveTo(0, -19); c.lineTo(-12, -1); c.lineTo(-5, -1); c.lineTo(-5, 17); c.lineTo(5, 17); c.lineTo(5, -1); c.lineTo(12, -1); c.closePath(); c.fill();
+    c.fillStyle = "#b9fbff"; c.beginPath(); c.moveTo(0, -13); c.lineTo(-6, -3); c.lineTo(-2, -3); c.lineTo(-2, 10); c.lineTo(2, 10); c.lineTo(2, -3); c.lineTo(6, -3); c.closePath(); c.fill();
+    c.restore();
+  }
+
+  private getGuideTarget(): Interactable | undefined {
+    if (this.scene.id === 5) return this.scene.interactables.find((item) => item.id === "ken_heart");
+    return this.scene.interactables.find((item) => item.kind === "gate")
+      ?? this.scene.interactables.find((item) => item.after === "nextScene");
   }
 
   private drawKenSprite(width: number, height: number, stride = 0): void {
