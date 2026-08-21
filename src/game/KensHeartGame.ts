@@ -777,14 +777,16 @@ export class KensHeartGame {
     c.translate(this.player.x, this.player.y - 94 + bob);
     c.rotate(angle);
     c.globalAlpha = pulse;
-    c.fillStyle = "rgba(24, 117, 214, 0.24)"; c.beginPath(); c.arc(0, 0, 24, 0, Math.PI * 2); c.fill();
-    c.fillStyle = "#167bd7"; c.beginPath(); c.moveTo(0, -19); c.lineTo(-12, -1); c.lineTo(-5, -1); c.lineTo(-5, 17); c.lineTo(5, 17); c.lineTo(5, -1); c.lineTo(12, -1); c.closePath(); c.fill();
-    c.fillStyle = "#b9fbff"; c.beginPath(); c.moveTo(0, -13); c.lineTo(-6, -3); c.lineTo(-2, -3); c.lineTo(-2, 10); c.lineTo(2, 10); c.lineTo(2, -3); c.lineTo(6, -3); c.closePath(); c.fill();
+    c.fillStyle = "rgba(244, 61, 91, 0.24)"; c.beginPath(); c.arc(0, 0, 24, 0, Math.PI * 2); c.fill();
+    c.fillStyle = "#df294b"; c.beginPath(); c.moveTo(0, -19); c.lineTo(-12, -1); c.lineTo(-5, -1); c.lineTo(-5, 17); c.lineTo(5, 17); c.lineTo(5, -1); c.lineTo(12, -1); c.closePath(); c.fill();
+    c.fillStyle = "#ffd6dc"; c.beginPath(); c.moveTo(0, -13); c.lineTo(-6, -3); c.lineTo(-2, -3); c.lineTo(-2, 10); c.lineTo(2, 10); c.lineTo(2, -3); c.lineTo(6, -3); c.closePath(); c.fill();
     c.restore();
   }
 
   private getGuideTarget(): Interactable | undefined {
     if (this.scene.id === 5) return this.scene.interactables.find((item) => item.id === "ken_heart");
+    const nextStoryStep = this.scene.interactables.find((item) => item.kind !== "gate" && !this.save.completed.includes(item.id));
+    if (nextStoryStep) return nextStoryStep;
     return this.scene.interactables.find((item) => item.kind === "gate")
       ?? this.scene.interactables.find((item) => item.after === "nextScene");
   }
