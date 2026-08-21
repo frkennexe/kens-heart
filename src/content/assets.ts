@@ -11,6 +11,7 @@ export const ASSETS = {
   images: {
     faySprite: "./assets/images/fay-pixel.png",
     kenSprite: "./assets/images/ken-source.png",
+    narratorPortrait: "./assets/images/narrator-bear.png",
     tavernHouse: "./assets/images/tavern-house.png",
     archiveCottage: "./assets/images/archive-cottage.png",
     heartCastle: "./assets/images/heart-castle.png",

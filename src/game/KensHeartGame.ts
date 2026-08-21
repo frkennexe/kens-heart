@@ -34,6 +34,8 @@ export class KensHeartGame {
   private player = { x: 180, y: 470, facing: 1, bob: 0 };
   private clickTarget?: { x: number; y: number };
   private keys = new Set<string>();
+  private touchMovement = { x: 0, y: 0 };
+  private joystickPointerId?: number;
   private dialog?: DialogState;
   private nearest?: Interactable;
   private lastTime = 0;
@@ -90,7 +92,8 @@ export class KensHeartGame {
         <section id="panel" class="panel" aria-modal="true" role="dialog"><button id="panelClose" class="panel-close" aria-label="Close">×</button><div id="panelContent"></div></section>
         <section id="letter" class="letter" aria-modal="true" role="dialog"><article><p id="letterKicker" class="eyebrow"></p><h2 id="letterTitle"></h2><div id="letterBody" class="letter-body"></div><button id="letterClose" class="primary">Close the letter</button></article></section>
         <section id="finalReveal" class="final-reveal" aria-modal="true" role="dialog"><div class="reveal-copy"><p>You were never travelling through a kingdom, Fay.</p><h2>You were travelling through <em>Ken's Heart.</em></h2><p class="birthday">HAPPY BIRTHDAY FAY</p><button id="openBirthdayLetter" class="primary">Open Ken's letter</button></div></section>
-        <aside class="mobile-controls" aria-label="Touch controls"><div class="dpad"><button data-key="ArrowUp">▲</button><button data-key="ArrowLeft">◀</button><button data-key="ArrowDown">▼</button><button data-key="ArrowRight">▶</button></div><button id="mobileAction" class="action-orb">✦<span>talk</span></button></aside>
+        <aside class="mobile-controls" aria-label="Touch controls"><div id="joystick" class="joystick" aria-label="Movement joystick"><span id="joystickKnob" class="joystick-knob"></span></div><button id="mobileAction" class="action-orb">✦<span>talk</span></button></aside>
+        <div class="rotate-device" aria-hidden="true"><span>↻</span><p>Rotate your phone<br>for landscape play</p></div>
       </section>`;
     this.root = mount;
     this.canvas = this.$(".world") as HTMLCanvasElement;
@@ -123,6 +126,7 @@ export class KensHeartGame {
 
   private bindEvents(): void {
     window.addEventListener("resize", () => this.resize());
+    this.root.addEventListener("pointerdown", () => this.requestLandscape(), { passive: true });
     document.addEventListener("keydown", (event) => {
       const activeTag = (document.activeElement?.tagName ?? "").toLowerCase();
       if (["input", "select", "button"].includes(activeTag) && event.key !== "Escape") return;
@@ -142,6 +146,7 @@ export class KensHeartGame {
     });
     this.$("#pauseButton").addEventListener("click", () => this.togglePause());
     this.canvas.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "touch") return;
       this.focusGame();
       if (this.mode !== "playing" || this.dialog || this.ui.letter.classList.contains("show") || this.ui.final.classList.contains("show")) return;
       const rect = this.canvas.getBoundingClientRect();
@@ -157,16 +162,16 @@ export class KensHeartGame {
       this.openLetter("A birthday letter", "For Fay, from Ken", BIRTHDAY_LETTER, true);
     });
     this.$("#mobileAction").addEventListener("click", () => this.action());
-    this.root.querySelectorAll<HTMLButtonElement>("[data-key]").forEach((button) => {
-      const key = button.dataset.key?.toLowerCase();
-      if (!key) return;
-      const press = (event: PointerEvent) => { event.preventDefault(); this.keys.add(key); };
-      const release = (event: PointerEvent) => { event.preventDefault(); this.keys.delete(key); };
-      button.addEventListener("pointerdown", press);
-      button.addEventListener("pointerup", release);
-      button.addEventListener("pointercancel", release);
-      button.addEventListener("pointerleave", release);
+    const joystick = this.$("#joystick");
+    joystick.addEventListener("pointerdown", (event) => {
+      this.joystickPointerId = event.pointerId;
+      joystick.setPointerCapture(event.pointerId);
+      this.updateJoystick(event);
     });
+    joystick.addEventListener("pointermove", (event) => { if (event.pointerId === this.joystickPointerId) this.updateJoystick(event); });
+    const releaseJoystick = (event: PointerEvent) => { if (event.pointerId === this.joystickPointerId) this.resetJoystick(); };
+    joystick.addEventListener("pointerup", releaseJoystick);
+    joystick.addEventListener("pointercancel", releaseJoystick);
   }
 
   private resize(): void {
@@ -178,6 +183,26 @@ export class KensHeartGame {
 
   private focusGame(): void {
     this.canvas.focus({ preventScroll: true });
+  }
+
+  private requestLandscape(): void {
+    const orientation = screen.orientation as unknown as { lock?: (value: "landscape") => Promise<void> };
+    if (!window.matchMedia("(pointer: coarse)").matches || typeof orientation.lock !== "function") return;
+    void orientation.lock("landscape").catch(() => undefined);
+  }
+
+  private updateJoystick(event: PointerEvent): void {
+    const joystick = this.$("#joystick"); const knob = this.$("#joystickKnob"); const rect = joystick.getBoundingClientRect();
+    const limit = rect.width * 0.31; const rawX = event.clientX - (rect.left + rect.width / 2); const rawY = event.clientY - (rect.top + rect.height / 2);
+    const length = Math.hypot(rawX, rawY) || 1; const scale = Math.min(1, limit / length); const x = rawX * scale; const y = rawY * scale;
+    this.touchMovement = { x: x / limit, y: y / limit };
+    knob.style.transform = `translate(${x}px, ${y}px)`;
+  }
+
+  private resetJoystick(): void {
+    this.joystickPointerId = undefined;
+    this.touchMovement = { x: 0, y: 0 };
+    this.$("#joystickKnob").style.transform = "translate(0, 0)";
   }
 
   private prepareKenSprite(): void {
@@ -219,6 +244,7 @@ export class KensHeartGame {
     this.ui.title.classList.remove("show");
     this.ui.pause.classList.remove("show");
     this.focusGame();
+    this.requestLandscape();
     await this.audio.unlock();
     this.setScene(1, true);
   }
@@ -231,6 +257,7 @@ export class KensHeartGame {
     this.mode = "playing";
     this.ui.title.classList.remove("show");
     this.focusGame();
+    this.requestLandscape();
     await this.audio.unlock();
     this.setScene(this.save.sceneId, false);
     this.player = { ...this.save.position, facing: 1, bob: 0 };
@@ -380,7 +407,7 @@ export class KensHeartGame {
     const portraitImage = this.ui.portraitImage as HTMLImageElement;
     const portraitInitial = this.ui.portraitInitial;
     const speaker = line.speaker ?? "Narrator";
-    const characterSprite = speaker === "Fay" || speaker === "Ken";
+    const characterSprite = speaker === "Fay" || speaker === "Ken" || speaker === "Narrator";
     portraitImage.hidden = !characterSprite;
     portraitInitial.hidden = characterSprite;
     if (speaker === "Fay") {
@@ -389,6 +416,9 @@ export class KensHeartGame {
     } else if (speaker === "Ken") {
       portraitImage.src = this.kenSpriteCanvas?.toDataURL() ?? ASSETS.images.kenSprite;
       portraitImage.alt = "Ken";
+    } else if (speaker === "Narrator") {
+      portraitImage.src = ASSETS.images.narratorPortrait;
+      portraitImage.alt = "Narrator";
     } else {
       portraitImage.removeAttribute("src");
       portraitImage.alt = "";
@@ -514,6 +544,7 @@ export class KensHeartGame {
       const right = this.keys.has("d") || this.keys.has("arrowright");
       let x = Number(right) - Number(left);
       let y = Number(down) - Number(up);
+      if (Math.abs(this.touchMovement.x) > 0.05 || Math.abs(this.touchMovement.y) > 0.05) ({ x, y } = this.touchMovement);
       if (!x && !y && this.clickTarget) {
         x = this.clickTarget.x - this.player.x;
         y = this.clickTarget.y - this.player.y;
