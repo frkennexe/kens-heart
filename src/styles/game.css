@@ -11,6 +11,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .grain { pointer-events: none; position: absolute; inset: 0; z-index: 2; opacity: .1; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E"); }
 .letterbox { position: absolute; inset-inline: 0; z-index: 4; height: 0; background: #06070d; pointer-events: none; transition: height .7s ease; }
 .letterbox.top { top: 0; } .letterbox.bottom { bottom: 0; }
+.scene-fade { position: absolute; z-index: 17; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 45%, rgba(24,18,44,.72), #05060c 78%); transition: opacity .42s ease; }.scene-fade.show { opacity: 1; }
 .hud { position: absolute; z-index: 5; inset: 0 0 auto; display: grid; grid-template-columns: max-content 1fr max-content; gap: 16px; align-items: start; padding: 22px clamp(16px, 3vw, 42px); pointer-events: none; font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
 .title-pill, .objective { backdrop-filter: blur(9px); background: rgba(10, 10, 20, .42); border: 1px solid rgba(255,255,255,.18); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
 .title-pill { display: flex; align-items: center; gap: 8px; border-radius: 99px; padding: 9px 13px; }

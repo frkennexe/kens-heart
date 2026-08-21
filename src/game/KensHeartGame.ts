@@ -41,6 +41,7 @@ export class KensHeartGame {
   private started = false;
   private restored = 0;
   private finalPhase = false;
+  private transitioning = false;
   private checkpointFlash = 0;
   private toast = "";
   private toastUntil = 0;
@@ -58,6 +59,7 @@ export class KensHeartGame {
       <section class="game-shell" aria-label="Ken's Heart">
         <canvas class="world" width="1280" height="720" tabindex="0" aria-label="Playable fantasy world"></canvas>
         <div class="grain"></div><div class="letterbox top"></div><div class="letterbox bottom"></div>
+        <div id="sceneFade" class="scene-fade"></div>
         <header class="hud" aria-live="polite">
           <div class="title-pill"><span class="pulse-dot"></span><span id="realmName">THE CROSSROADS</span></div>
           <div id="objective" class="objective"></div>
@@ -104,6 +106,7 @@ export class KensHeartGame {
       toast: this.$("#toast"), panel: this.$("#panel"), panelContent: this.$("#panelContent"),
       letter: this.$("#letter"), letterKicker: this.$("#letterKicker"), letterTitle: this.$("#letterTitle"),
       letterBody: this.$("#letterBody"), final: this.$("#finalReveal"), saveMark: this.$("#saveMark"),
+      sceneFade: this.$("#sceneFade"),
       speaker: this.$("#speaker"), dialogueText: this.$("#dialogueText"), portrait: this.$("#portrait"),
       portraitImage: this.$("#portraitImage"), portraitInitial: this.$("#portraitInitial"),
       pauseObjective: this.$("#pauseObjective"), continue: this.$("#continueButton"),
@@ -281,6 +284,7 @@ export class KensHeartGame {
   }
 
   private action(): void {
+    if (this.transitioning) return;
     if (this.ui.panel.classList.contains("show")) return;
     if (this.ui.letter.classList.contains("show")) return;
     if (this.ui.final.classList.contains("show")) return;
@@ -349,8 +353,17 @@ export class KensHeartGame {
   }
 
   private changeScene(nextId: number): void {
+    if (this.transitioning) return;
+    this.transitioning = true;
     this.showToast(`Chapter ${nextId}: ${sceneById(nextId).name}`);
-    this.setScene(nextId, true);
+    this.ui.sceneFade.classList.add("show");
+    window.setTimeout(() => {
+      this.setScene(nextId, true);
+      window.setTimeout(() => {
+        this.ui.sceneFade.classList.remove("show");
+        this.transitioning = false;
+      }, 330);
+    }, 420);
   }
 
   private openDialogue(lines: Line[], resolve?: () => void): void {
@@ -497,7 +510,7 @@ export class KensHeartGame {
   }
 
   private update(delta: number): void {
-    if (this.mode === "playing" && !this.dialog && !this.ui.letter.classList.contains("show") && !this.ui.final.classList.contains("show")) {
+    if (this.mode === "playing" && !this.dialog && !this.transitioning && !this.ui.letter.classList.contains("show") && !this.ui.final.classList.contains("show")) {
       const up = this.keys.has("w") || this.keys.has("arrowup");
       const down = this.keys.has("s") || this.keys.has("arrowdown");
       const left = this.keys.has("a") || this.keys.has("arrowleft");
@@ -517,7 +530,8 @@ export class KensHeartGame {
         this.player.facing = x || this.player.facing;
         this.player.bob += delta * 11;
       }
-      this.nearest = this.scene.interactables.find((interactable) => distance(this.player, interactable) < 118 && (!this.save.completed.includes(interactable.id) || interactable.kind === "gate" || interactable.id === "ken_heart" || interactable.id === "tavern"));
+      const reachable = this.scene.interactables.filter((interactable) => distance(this.player, interactable) < 148 && (!this.save.completed.includes(interactable.id) || interactable.kind === "gate" || interactable.id === "ken_heart" || interactable.id === "tavern"));
+      this.nearest = reachable.sort((a, b) => distance(this.player, a) - distance(this.player, b))[0];
       this.ui.prompt.classList.toggle("show", Boolean(this.nearest));
       this.ui.prompt.textContent = this.nearest ? `E  ${this.nearest.label}` : "";
     } else {
