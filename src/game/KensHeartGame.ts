@@ -81,9 +81,6 @@ export class KensHeartGame {
           <div class="menu-actions">
             <button class="primary" data-action="new">Begin</button>
             <button data-action="continue" id="continueButton">Continue</button>
-            <button data-action="memories">Memories</button>
-            <button data-action="settings">Settings</button>
-            <button data-action="credits">Credits</button>
           </div>
         </section>
         <section id="pauseScreen" class="screen pause-screen" aria-modal="true" role="dialog">
