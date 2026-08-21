@@ -92,7 +92,7 @@ export class KensHeartGame {
         <section id="panel" class="panel" aria-modal="true" role="dialog"><button id="panelClose" class="panel-close" aria-label="Close">×</button><div id="panelContent"></div></section>
         <section id="letter" class="letter" aria-modal="true" role="dialog"><article><p id="letterKicker" class="eyebrow"></p><h2 id="letterTitle"></h2><div id="letterBody" class="letter-body"></div><button id="letterClose" class="primary">Close the letter</button></article></section>
         <section id="finalReveal" class="final-reveal" aria-modal="true" role="dialog"><div class="reveal-copy"><p>You were never travelling through a kingdom, Fay.</p><h2>You were travelling through <em>Ken's Heart.</em></h2><p class="birthday">HAPPY BIRTHDAY FAY</p><button id="openBirthdayLetter" class="primary">Open Ken's letter</button></div></section>
-        <aside class="mobile-controls" aria-label="Touch controls"><div id="joystick" class="joystick" aria-label="Movement joystick"><span id="joystickKnob" class="joystick-knob"></span></div><button id="mobileAction" class="action-orb">✦<span>talk</span></button></aside>
+        <aside class="mobile-controls" aria-label="Touch controls"><div id="joystick" class="joystick" aria-label="Movement joystick"><span id="joystickKnob" class="joystick-knob"></span></div><button id="mobileAction" class="action-orb">✦<span>interact</span></button></aside>
         <div class="rotate-device" aria-hidden="true"><span>↻</span><p>Rotate your phone<br>for landscape play</p></div>
       </section>`;
     this.root = mount;
